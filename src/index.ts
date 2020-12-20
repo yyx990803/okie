@@ -77,7 +77,7 @@ export class Worker<Args extends any[], Ret = any> {
         if (code !== 0) {
           worker.currentReject &&
             worker.currentReject(
-              new Error(`Wroker stopped with non-0 exit code ${code}`)
+              new Error(`Worker stopped with non-0 exit code ${code}`)
             )
           worker.currentReject = null
         }
