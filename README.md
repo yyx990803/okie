@@ -12,7 +12,9 @@ const worker = new Worker(n => n + 1, {
 })
 
 ;(async () => {
-  const result = await worker.run()
-  console.log(result)
+  const result = await worker.run(1)
+  console.log(result) // logs "2"
+
+  worker.stop()
 })()
 ```
