@@ -38,7 +38,7 @@ export class Worker<Args extends any[], Ret = any> {
   }
 
   stop() {
-    this.pool.forEach((w) => w.terminate())
+    this.pool.forEach((w) => w.unref())
     this.queue.forEach(([_, reject]) =>
       reject(
         new Error('Main worker pool stopped before a worker was available.')
@@ -66,19 +66,17 @@ export class Worker<Args extends any[], Ret = any> {
       })
 
       worker.on('error', (err) => {
-        worker.terminate()
-        this.pool.splice(this.pool.indexOf(worker), 1)
         worker.currentReject && worker.currentReject(err)
         worker.currentReject = null
       })
 
       worker.on('exit', (code) => {
-        this.pool.splice(this.pool.indexOf(worker), 1)
-        if (code !== 0) {
-          worker.currentReject &&
-            worker.currentReject(
-              new Error(`Worker stopped with non-0 exit code ${code}`)
-            )
+        const i = this.pool.indexOf(worker)
+        if (i > -1) this.pool.splice(i, 1)
+        if (code !== 0 && worker.currentReject) {
+          worker.currentReject(
+            new Error(`Worker stopped with non-0 exit code ${code}`)
+          )
           worker.currentReject = null
         }
       })
