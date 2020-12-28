@@ -1,6 +1,6 @@
 {
   "name": "okie",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Dead simple worker thread pool",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
