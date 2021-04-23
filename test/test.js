@@ -1,3 +1,4 @@
+const { join } = require('path')
 const { Worker } = require('../dist/index')
 
 test('should work', async () => {
@@ -8,6 +9,25 @@ test('should work', async () => {
       }, Math.floor(Math.random() * 100))
     })
   })
+
+  const results = await Promise.all([
+    worker.run({ n: 1 }),
+    worker.run({ n: 2 }),
+    worker.run({ n: 3 }),
+    worker.run({ n: 4 }),
+    worker.run({ n: 5 }),
+    worker.run({ n: 6 }),
+    worker.run({ n: 7 }),
+    worker.run({ n: 8 }),
+    worker.run({ n: 9 })
+  ])
+
+  worker.stop()
+  expect(results).toMatchObject([2, 3, 4, 5, 6, 7, 8, 9, 10])
+})
+
+test('should work for path', async () => {
+  const worker = new Worker(join(__dirname, './worker.js'))
 
   const results = await Promise.all([
     worker.run({ n: 1 }),
