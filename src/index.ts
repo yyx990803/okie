@@ -65,7 +65,7 @@ export class Worker<Args extends any[], Ret = any> {
     if (this.pool.length < this.max) {
       const worker = this.path
         ? new _Worker(this.path) as NodeWorker
-        : new _Worker(this.code, { eval: true }) as NodeWorker
+        : new _Worker(this.code!, { eval: true }) as NodeWorker
 
       worker.on('message', (res) => {
         worker.currentResolve && worker.currentResolve(res)
