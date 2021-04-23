@@ -11,17 +11,23 @@ export interface Options {
 }
 
 export class Worker<Args extends any[], Ret = any> {
-  private code: string
+  private path?: string
+  private code?: string
   private max: number
   private pool: NodeWorker[]
   private idlePool: NodeWorker[]
   private queue: [(worker: NodeWorker) => void, (err: Error) => void][]
 
   constructor(
-    fn: (...args: Args) => Promise<Ret> | Ret,
+    pathOrFn: string | ((...args: Args) => Promise<Ret> | Ret),
     options: Options = {}
   ) {
-    this.code = genWorkerCode(fn)
+    if (typeof pathOrFn === 'string') {
+      this.path = pathOrFn
+    } else {
+      this.code = genWorkerCode(pathOrFn)
+    }
+
     this.max = options.max || Math.max(1, os.cpus().length - 1)
     this.pool = []
     this.idlePool = []
@@ -57,7 +63,9 @@ export class Worker<Args extends any[], Ret = any> {
 
     // can spawn more?
     if (this.pool.length < this.max) {
-      const worker = new _Worker(this.code, { eval: true }) as NodeWorker
+      const worker = this.path
+        ? new _Worker(this.path) as NodeWorker
+        : new _Worker(this.code, { eval: true }) as NodeWorker
 
       worker.on('message', (res) => {
         worker.currentResolve && worker.currentResolve(res)
