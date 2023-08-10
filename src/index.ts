@@ -22,7 +22,12 @@ export class Worker<Args extends any[], Ret = any> {
     options: Options = {}
   ) {
     this.code = genWorkerCode(fn)
-    this.max = options.max || Math.max(1, os.cpus().length - 1)
+    const defaultMax = Math.max(
+      1,
+      // os.availableParallelism is available from Node.js 18.14.0
+      (os.availableParallelism?.() ?? os.cpus().length) - 1
+    )
+    this.max = options.max || defaultMax
     this.pool = []
     this.idlePool = []
     this.queue = []
